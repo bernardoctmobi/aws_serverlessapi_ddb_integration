@@ -19,12 +19,29 @@ Resources:
     Properties:
       StageName: 'dev'
       DefinitionBody:
-        swagger: '2.0'
+        openapi: 3.0.3
         info:
           title: 'Car Models API'
         paths:
           /carmodels:
             post:
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        PK:
+                          type: string
+                        brand:
+                          type: string
+                        model:
+                          type: string
+                        year:
+                          type: number
+                      required:
+                        - PK
               responses:
                 '200':
                   description: OK
