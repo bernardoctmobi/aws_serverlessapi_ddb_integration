@@ -2,3 +2,122 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 
 Resources:
+  CarModelsTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: 'CarModels'
+      AttributeDefinitions:
+        - AttributeName: 'PK'
+          AttributeType: 'S'
+      KeySchema:  
+        - AttributeName: 'PK'
+          KeyType: 'HASH'
+      BillingMode: 'PAY_PER_REQUEST'
+
+  CarModelsApi:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      StageName: 'dev'
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title: 'Car Models API'
+        paths:
+          /carmodels:
+            post:
+              x-amazon-apigateway-integration:
+                type: 'aws'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:dynamodb:action/UpdateItem'
+                credentials: !GetAtt CarModelsApiRole.Arn
+                httpMethod: 'POST'
+                requestTemplates:
+                  application/json: |
+                    {
+                      "TableName": "CarModels",
+                      "Key": {
+                        "PK": {
+                          "S": "$input.json('$.PK')"
+                        }
+                      },
+                      "UpdateExpression": "SET #brand = :brand, #model = :model, #year = :year ",
+                      "ExpressionAttributeNames": {
+                        "#brand": "brand",
+                        "#model": "model",
+                        "#year": "year"
+                      },
+                      "ExpressionAttributeValues": {
+                        ":brand": {
+                          "S": "$input.json('$.brand')"
+                        },
+                        ":model": {
+                          "S": "$input.json('$.model')"
+                        },
+                        ":year": {
+                          "N": "$input.json('$.year')"
+                        }
+                      }
+                    }
+                responses:
+                  '200':
+                    statusCode: '200'
+                    responseTemplates:
+                      application/json: '{"Message":"Update successful"}'
+                  '400':
+                    statusCode: '400'
+                    responseTemplates:
+                      application/json: '{"Error":"Bad Request"}'
+                  '500':
+                    statusCode: '500'
+                    responseTemplates:
+                      application/json: '{"Error":"Internal Server Error"}'
+
+          /carmodels/{PK}:
+            get:
+              x-amazon-apigateway-integration:
+                type: 'aws'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:dynamodb:action/GetItem'
+                credentials: !GetAtt CarModelsApiRole.Arn
+                httpMethod: 'POST'
+                requestTemplates:
+                  application/json: |
+                    {
+                      "TableName": "CarModels",
+                      "Key": {
+                        "PK": {
+                          "S": "$input.params('PK')"
+                        }
+                      }
+                    }
+                responses:
+                  '200':
+                    statusCode: '200'
+                  '400':
+                    statusCode: '400'
+                    responseTemplates:
+                      application/json: '{"Error":"Bad Request"}'
+                  '500':
+                    statusCode: '500'
+                    responseTemplates:
+                      application/json: '{"Error":"Internal Server Error"}'
+
+  CarModelsApiRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service:
+                - 'apigateway.amazonaws.com'
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: 'CarModelsTablePermissionPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action:
+                  - 'dynamodb:UpdateItem'
+                  - 'dynamodb:GetItem'
+                Resource: !GetAtt CarModelsTable.Arn
