@@ -80,6 +80,14 @@ Resources:
 
           /carmodels/{PK}:
             get:
+            post:
+              responses:
+                '200':
+                  description: OK
+                '400':
+                  description: BAD REQUEST
+                '500':
+                  description: INTERNAL ERROR
               x-amazon-apigateway-integration:
                 type: 'aws'
                 uri: !Sub 'arn:aws:apigateway:${AWS::Region}:dynamodb:action/GetItem'
