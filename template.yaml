@@ -79,7 +79,8 @@ Resources:
                         ":year": {
                           "N": $input.json('$.year')
                         }
-                      }
+                      },
+                      "ReturnValues": "ALL_NEW"
                     }
                 responses:
                   '200':
