@@ -36,7 +36,7 @@ Resources:
                       "TableName": "CarModels",
                       "Key": {
                         "PK": {
-                          "S": "$input.json('$.PK')"
+                          "S": $input.json('$.PK')
                         }
                       },
                       "UpdateExpression": "SET #brand = :brand, #model = :model, #year = :year ",
@@ -47,13 +47,13 @@ Resources:
                       },
                       "ExpressionAttributeValues": {
                         ":brand": {
-                          "S": "$input.json('$.brand')"
+                          "S": $input.json('$.brand')
                         },
                         ":model": {
-                          "S": "$input.json('$.model')"
+                          "S": $input.json('$.model')
                         },
                         ":year": {
-                          "N": "$input.json('$.year')"
+                          "N": $input.json('$.year')
                         }
                       }
                     }
@@ -84,7 +84,7 @@ Resources:
                       "TableName": "CarModels",
                       "Key": {
                         "PK": {
-                          "S": "$input.params('PK')"
+                          "S": $input.params('PK')
                         }
                       }
                     }
