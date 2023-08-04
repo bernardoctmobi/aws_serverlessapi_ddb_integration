@@ -122,6 +122,13 @@ Resources:
                 responses:
                   '200':
                     statusCode: '200'
+                    responseTemplates:
+                      application/json: |
+                        {
+                          "Brand": $input.json('$.Item.brand.S'),
+                          "Model": $input.json('$.Item.model.S'),
+                          "Year": $input.json('$.Item.year.N')
+                        }
                   '400':
                     statusCode: '400'
                     responseTemplates:
