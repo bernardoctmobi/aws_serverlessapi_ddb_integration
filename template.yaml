@@ -98,7 +98,7 @@ Resources:
                       "TableName": "CarModels",
                       "Key": {
                         "PK": {
-                          "S": $input.params('PK')
+                          "S": "$input.params('PK')"
                         }
                       }
                     }
