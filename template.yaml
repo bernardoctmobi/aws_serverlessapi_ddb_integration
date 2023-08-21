@@ -9,7 +9,7 @@ Resources:
       AttributeDefinitions:
         - AttributeName: 'PK'
           AttributeType: 'S'
-      KeySchema:  
+      KeySchema:
         - AttributeName: 'PK'
           KeyType: 'HASH'
       BillingMode: 'PAY_PER_REQUEST'
@@ -19,125 +19,10 @@ Resources:
     Properties:
       StageName: 'dev'
       DefinitionBody:
-        openapi: 3.0.3
-        info:
-          title: 'Car Models API'
-        paths:
-          /carmodels:
-            post:
-              requestBody:
-                required: true
-                content:
-                  application/json:
-                    schema:
-                      type: object
-                      properties:
-                        PK:
-                          type: string
-                        brand:
-                          type: string
-                        model:
-                          type: string
-                        year:
-                          type: number
-                      required:
-                        - PK
-              responses:
-                '200':
-                  description: OK
-                '400':
-                  description: BAD REQUEST
-                '500':
-                  description: INTERNAL ERROR
-              x-amazon-apigateway-integration:
-                type: 'aws'
-                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:dynamodb:action/UpdateItem'
-                credentials: !GetAtt CarModelsApiRole.Arn
-                httpMethod: 'POST'
-                requestTemplates:
-                  application/json: |
-                    {
-                      "TableName": "CarModels",
-                      "Key": {
-                        "PK": {
-                          "S": $input.json('$.PK')
-                        }
-                      },
-                      "UpdateExpression": "SET #brand = :brand, #model = :model, #year = :year ",
-                      "ExpressionAttributeNames": {
-                        "#brand": "brand",
-                        "#model": "model",
-                        "#year": "year"
-                      },
-                      "ExpressionAttributeValues": {
-                        ":brand": {
-                          "S": $input.json('$.brand')
-                        },
-                        ":model": {
-                          "S": $input.json('$.model')
-                        },
-                        ":year": {
-                          "N": $input.json('$.year')
-                        }
-                      },
-                      "ReturnValues": "ALL_NEW"
-                    }
-                responses:
-                  '200':
-                    statusCode: '200'
-                    responseTemplates:
-                      application/json: '{"Message":"Update successful"}'
-                  '400':
-                    statusCode: '400'
-                    responseTemplates:
-                      application/json: '{"Error":"Bad Request"}'
-                  '500':
-                    statusCode: '500'
-                    responseTemplates:
-                      application/json: '{"Error":"Internal Server Error"}'
-
-          /carmodels/{PK}:
-            get:
-              responses:
-                '200':
-                  description: OK
-                '400':
-                  description: BAD REQUEST
-                '500':
-                  description: INTERNAL ERROR
-              x-amazon-apigateway-integration:
-                type: 'aws'
-                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:dynamodb:action/GetItem'
-                credentials: !GetAtt CarModelsApiRole.Arn
-                httpMethod: 'POST'
-                requestTemplates:
-                  application/json: |
-                    {
-                      "TableName": "CarModels",
-                      "Key": {
-                        "PK": {
-                          "S": "$input.params('PK')"
-                        }
-                      }
-                    }
-                responses:
-                  '200':
-                    statusCode: '200'
-                    responseTemplates:
-                      application/json: |
-                        {
-                          "Brand": $input.json('$.Item.brand.S'),
-                          "Model": $input.json('$.Item.model.S'),
-                          "Year": $input.json('$.Item.year.N')
-                        }
-                  '400':
-                    statusCode: '400'
-                    responseTemplates:
-                      application/json: '{"Error":"Bad Request"}'
-                  '500':
-                    statusCode: '500'
-                    responseTemplates:
-                      application/json: '{"Error":"Internal Server Error"}'
+        'Fn::Transform':
+          Name: AWS::Include
+          Parameters:
+            Location: ./openapi.yaml
 
   CarModelsApiRole:
     Type: 'AWS::IAM::Role'

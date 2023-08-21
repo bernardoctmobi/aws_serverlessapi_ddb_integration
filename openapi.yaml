@@ -1,0 +1,122 @@
+openapi: 3.0.1
+info:
+  title: Car Models API
+  version: 1.0.0
+
+paths:
+  /carmodels:
+    post:
+      responses:
+        200:
+          description: OK
+        400:
+          description: BAD REQUEST
+        500:
+          description: INTERNAL ERROR
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequestSchema'
+      x-amazon-apigateway-integration:
+        type: 'aws'
+        uri: {'Fn::Sub': 'arn:aws:apigateway:${AWS::Region}:dynamodb:action/UpdateItem'}
+        credentials: {'Fn::GetAtt': [CarModelsApiRole, Arn]}
+        httpMethod: 'POST'
+        requestTemplates:
+          application/json: |
+            {
+              "TableName": "CarModels",
+              "Key": {
+                "PK": {
+                  "S": $input.json('$.PK')
+                }
+              },
+              "UpdateExpression": "SET #brand = :brand, #model = :model, #year = :year ",
+              "ExpressionAttributeNames": {
+                "#brand": "brand",
+                "#model": "model",
+                "#year": "year"
+              },
+              "ExpressionAttributeValues": {
+                ":brand": {
+                  "S": $input.json('$.brand')
+                },
+                ":model": {
+                  "S": $input.json('$.model')
+                },
+                ":year": {
+                  "N": $input.json('$.year')
+                }
+              },
+              "ReturnValues": "ALL_NEW"
+            }
+        responses:
+          '200':
+            statusCode: '200'
+            responseTemplates:
+              application/json: '{"Message":"Update successful"}'
+          '400':
+            statusCode: '400'
+            responseTemplates:
+              application/json: '{"Error":"Bad Request"}'
+          '500':
+            statusCode: '500'
+            responseTemplates:
+              application/json: '{"Error":"Internal Server Error"}'
+  /carmodels/{PK}:
+    get:
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: BAD REQUEST
+        '500':
+          description: INTERNAL ERROR
+      x-amazon-apigateway-integration:
+        type: 'aws'
+        uri: {'Fn::Sub': 'arn:aws:apigateway:${AWS::Region}:dynamodb:action/GetItem'}
+        credentials: {'Fn::GetAtt': [CarModelsApiRole, Arn]}
+        httpMethod: 'POST'
+        requestTemplates:
+          application/json: |
+            {
+              "TableName": "CarModels",
+              "Key": {
+                "PK": {
+                  "S": "$input.params('PK')"
+                }
+              }
+            }
+        responses:
+          '200':
+            statusCode: '200'
+            responseTemplates:
+              application/json: |
+                {
+                  "Brand": $input.json('$.Item.brand.S'),
+                  "Model": $input.json('$.Item.model.S'),
+                  "Year": $input.json('$.Item.year.N')
+                }
+          '400':
+            statusCode: '400'
+            responseTemplates:
+              application/json: '{"Error":"Bad Request"}'
+          '500':
+            statusCode: '500'
+            responseTemplates:
+              application/json: '{"Error":"Internal Server Error"}'
+
+components:
+  schemas:
+    PostRequestSchema:
+      type: object
+      properties:
+        PK:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        year:
+          type: number
