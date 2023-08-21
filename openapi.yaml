@@ -30,13 +30,15 @@ paths:
               "Key": {
                 "PK": {
                   "S": $input.json('$.PK')
+                },
+                "SK": {
+                  "N": $input.json('$.SK')
                 }
               },
-              "UpdateExpression": "SET #brand = :brand, #model = :model, #year = :year ",
+              "UpdateExpression": "SET #brand = :brand, #model = :model",
               "ExpressionAttributeNames": {
                 "#brand": "brand",
-                "#model": "model",
-                "#year": "year"
+                "#model": "model"
               },
               "ExpressionAttributeValues": {
                 ":brand": {
@@ -44,9 +46,6 @@ paths:
                 },
                 ":model": {
                   "S": $input.json('$.model')
-                },
-                ":year": {
-                  "N": $input.json('$.year')
                 }
               },
               "ReturnValues": "ALL_NEW"
@@ -64,7 +63,7 @@ paths:
             statusCode: '500'
             responseTemplates:
               application/json: '{"Error":"Internal Server Error"}'
-  /carmodels/{PK}:
+  /carmodels/{PK}/{SK}:
     get:
       responses:
         '200':
@@ -85,7 +84,10 @@ paths:
               "Key": {
                 "PK": {
                   "S": "$input.params('PK')"
-                }
+                },
+                "SK": {
+                  "N": "$input.params('SK')"
+                }                
               }
             }
         responses:
@@ -101,7 +103,7 @@ paths:
                 {
                   "Brand": $input.json('$.Item.brand.S'),
                   "Model": $input.json('$.Item.model.S'),
-                  "Year": $input.json('$.Item.year.N')
+                  "Year": $input.json('$.Item.SK.N')
                 }
                 #end
           '400':
@@ -120,9 +122,9 @@ components:
       properties:
         PK:
           type: string
+        SK:
+          type: number
         brand:
           type: string
         model:
           type: string
-        year:
-          type: number
