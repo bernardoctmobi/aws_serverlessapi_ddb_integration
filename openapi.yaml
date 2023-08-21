@@ -93,11 +93,17 @@ paths:
             statusCode: '200'
             responseTemplates:
               application/json: |
+                #if ($input.path("$") == {})
+                {
+                  'Message': 'L'oggetto cercato non è presente nel database'
+                }
+                #else
                 {
                   "Brand": $input.json('$.Item.brand.S'),
                   "Model": $input.json('$.Item.model.S'),
                   "Year": $input.json('$.Item.year.N')
                 }
+                #end
           '400':
             statusCode: '400'
             responseTemplates:
