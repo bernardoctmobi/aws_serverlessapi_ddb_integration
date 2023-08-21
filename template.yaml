@@ -3,7 +3,7 @@ Transform: 'AWS::Serverless-2016-10-31'
 
 Resources:
   CarModelsTable:
-    Type: 'AWS::DynamoDB::Table'
+    Type: AWS::DynamoDB::Table
     Properties:
       TableName: 'CarModels'
       AttributeDefinitions:
@@ -15,7 +15,7 @@ Resources:
       BillingMode: 'PAY_PER_REQUEST'
 
   CarModelsApi:
-    Type: 'AWS::Serverless::Api'
+    Type: AWS::Serverless::Api
     Properties:
       StageName: 'dev'
       DefinitionBody:
@@ -25,7 +25,7 @@ Resources:
             Location: ./openapi.yaml
 
   CarModelsApiRole:
-    Type: 'AWS::IAM::Role'
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
