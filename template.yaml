@@ -8,12 +8,16 @@ Parameters:
   DeploymentStage:
     Type: String
     Default: dev
+  TableName:
+    Type: String
+    Default: CarModels
 
 Resources:
   CarModelsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: 'CarModels'
+      TableName:
+        Ref: TableName
       AttributeDefinitions:
         - AttributeName: 'PK'
           AttributeType: 'S'

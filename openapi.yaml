@@ -24,32 +24,35 @@ paths:
         credentials: {'Fn::GetAtt': [CarModelsApiRole, Arn]}
         httpMethod: 'POST'
         requestTemplates:
-          application/json: |
-            {
-              "TableName": "CarModels",
-              "Key": {
-                "PK": {
-                  "S": $input.json('$.PK')
-                },
-                "SK": {
-                  "N": $input.json('$.SK')
+          application/json:
+            Fn::Sub:
+              - |-
+                {
+                  "TableName": "${tableName}",
+                  "Key": {
+                    "PK": {
+                      "S": $input.json('$.PK')
+                    },
+                    "SK": {
+                      "N": $input.json('$.SK')
+                    }
+                  },
+                  "UpdateExpression": "SET #brand = :brand, #model = :model",
+                  "ExpressionAttributeNames": {
+                    "#brand": "brand",
+                    "#model": "model"
+                  },
+                  "ExpressionAttributeValues": {
+                    ":brand": {
+                      "S": $input.json('$.brand')
+                    },
+                    ":model": {
+                      "S": $input.json('$.model')
+                    }
+                  },
+                  "ReturnValues": "ALL_NEW"
                 }
-              },
-              "UpdateExpression": "SET #brand = :brand, #model = :model",
-              "ExpressionAttributeNames": {
-                "#brand": "brand",
-                "#model": "model"
-              },
-              "ExpressionAttributeValues": {
-                ":brand": {
-                  "S": $input.json('$.brand')
-                },
-                ":model": {
-                  "S": $input.json('$.model')
-                }
-              },
-              "ReturnValues": "ALL_NEW"
-            }
+              - { tableName: { Ref: TableName } }
         responses:
           '200':
             statusCode: '200'
@@ -78,18 +81,21 @@ paths:
         credentials: {'Fn::GetAtt': [CarModelsApiRole, Arn]}
         httpMethod: 'POST'
         requestTemplates:
-          application/json: |
-            {
-              "TableName": "CarModels",
-              "Key": {
-                "PK": {
-                  "S": "$input.params('PK')"
-                },
-                "SK": {
-                  "N": "$input.params('SK')"
-                }                
-              }
-            }
+          application/json:
+            Fn::Sub:
+              - |-
+                {
+                  "TableName": "${tableName}",
+                  "Key": {
+                    "PK": {
+                      "S": "$input.params('PK')"
+                    },
+                    "SK": {
+                      "N": "$input.params('SK')"
+                    }                
+                  }
+                }
+              - { tableName: { Ref: TableName } }
         responses:
           '200':
             statusCode: '200'
