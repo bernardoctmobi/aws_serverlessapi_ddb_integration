@@ -29,7 +29,8 @@ Resources:
   CarModelsApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: 'dev'
+      StageName:
+        Ref: DeploymentStage
       DefinitionBody:
         'Fn::Transform':
           Name: AWS::Include
